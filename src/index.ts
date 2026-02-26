@@ -11,6 +11,7 @@ import { insightsCommand } from './cli/commands/insights.js';
 import { rulesCommand } from './cli/commands/rules.js';
 import { suggestCommand } from './cli/commands/suggest.js';
 import { dashboardCommand } from './cli/commands/dashboard.js';
+import { importCommand } from './cli/commands/import.js';
 
 const program = new Command();
 
@@ -29,6 +30,7 @@ program.addCommand(insightsCommand());
 program.addCommand(rulesCommand());
 program.addCommand(suggestCommand());
 program.addCommand(dashboardCommand());
+program.addCommand(importCommand());
 
 // Hidden: MCP server (called by Claude Code)
 program
