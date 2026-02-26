@@ -46,6 +46,7 @@ import { ApiServer } from './api/server.js';
 
 // Dashboard
 import { DashboardServer } from './dashboard/server.js';
+import { renderDashboard } from './dashboard/renderer.js';
 
 export class MarketingCore {
   private db: Database.Database | null = null;
@@ -150,11 +151,18 @@ export class MarketingCore {
         path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1')),
         '../dashboard.html',
       );
+      const dashServices = {
+        analytics: services.analytics,
+        insight: services.insight,
+        rule: services.rule,
+        synapse: services.synapse,
+      };
       this.dashboardServer = new DashboardServer({
         port: config.dashboard.port,
         getDashboardHtml: () => {
           try {
-            return fs.readFileSync(dashboardHtmlPath, 'utf-8');
+            const template = fs.readFileSync(dashboardHtmlPath, 'utf-8');
+            return renderDashboard(template, dashServices);
           } catch {
             return '<html><body><h1>Dashboard HTML not found</h1></body></html>';
           }
