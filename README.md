@@ -41,6 +41,14 @@ Without Marketing Brain, your marketing knowledge lives in your head. With it:
 - **Template Suggestions** — "Post #42 has high engagement — extract as template"
 - **Optimization Ideas** — "Cross-post your top tweet as a LinkedIn article"
 
+### Dashboard
+- **HTML Dashboard** — Neural canvas background, glassmorphism UI, animated stats
+- **Force-Directed Synapse Graph** — Interactive network visualization with drag, hover, tooltips
+- **Platform Charts** — Color-coded distribution bars
+- **Top Posts** — Engagement-scored post cards
+- **Research Insights** — Tabbed view: Trends, Gaps, Synergies, Templates, Optimizations
+- **Real-Time Updates** — SSE-powered live stats refresh every 30 seconds
+
 ### MCP Tools (13 tools for Claude Code)
 - **Draft Checking** — Check a post against learned rules before publishing
 - **Post Reporting** — Track published posts with one command
@@ -86,20 +94,46 @@ marketing doctor    # verify everything works (5/5 green)
 
 ## CLI Commands
 
+### Daemon Management
 ```
 marketing start                  Start the daemon
 marketing stop                   Stop the daemon
 marketing status                 Show stats (posts, campaigns, synapses, insights)
 marketing doctor                 Health check (daemon, DB, MCP, data dir)
+```
+
+### Content Management
+```
 marketing post <platform> [url]  Report a published post
 marketing campaign create <name> Create a campaign
 marketing campaign list          List all campaigns
 marketing campaign stats <id>    Show campaign performance
+marketing import <file.json>     Bulk import posts from JSON
+```
+
+### Intelligence
+```
 marketing insights               Show current marketing insights
 marketing rules                  Show learned marketing rules
 marketing suggest <topic>        Get content suggestions for a topic
-marketing dashboard              Full marketing dashboard
-marketing import <file.json>     Bulk import posts from JSON
+marketing learn                  Trigger a learning cycle manually
+marketing query <search>         Search posts, strategies, and insights
+```
+
+### Visualization & Export
+```
+marketing dashboard              Open interactive HTML dashboard in browser
+marketing network                Show synapse network overview
+marketing network --node post:42 Explore a specific node's connections
+marketing export                 Export all data as JSON
+```
+
+### Configuration
+```
+marketing config show            Show current configuration
+marketing config set <key> <val> Set a config value (e.g., learning.intervalMs 600000)
+marketing config delete <key>    Revert a config key to default
+marketing config path            Show config file location
 ```
 
 ### Example Workflow
@@ -114,7 +148,20 @@ marketing post x --content "Just shipped v2.0!" --campaign "Product Launch" --ha
 # See what the brain learned
 marketing insights
 marketing rules
+marketing learn
+
+# Open the visual dashboard
 marketing dashboard
+
+# Explore the synapse network
+marketing network
+marketing network --node post:1
+
+# Search across everything
+marketing query "developer tools"
+
+# Export your data
+marketing export > marketing-data.json
 
 # Get suggestions before your next post
 marketing suggest "developer tools"
@@ -157,21 +204,41 @@ curl -X POST http://localhost:7780/api/v1/rpc \
   -d '{"method": "analytics.summary", "params": {}}'
 ```
 
+## Dashboard Server
+
+The daemon starts a live dashboard server on port 7782 (default).
+
+```bash
+# Open the dashboard in your browser
+marketing dashboard
+
+# Or visit directly while the daemon is running
+open http://localhost:7782
+```
+
+Features:
+- Real-time stats updates via Server-Sent Events (SSE)
+- Interactive force-directed synapse network graph
+- Platform distribution charts
+- Top performing posts with engagement scores
+- Research insights organized by type
+- Neural canvas background with mouse interaction
+
 ## Architecture
 
 ```
-+------------------+     +------------------+
-|   Claude Code    |     |  Browser/CI/CD   |
-|   (MCP stdio)    |     |  (REST API)      |
-+--------+---------+     +--------+---------+
-         |                        |
-         v                        v
-+--------+---------+     +--------+---------+
-|   MCP Server     |     |    REST API      |
-|   (stdio)        |     |   (port 7780)    |
-+--------+---------+     +--------+---------+
-         |                        |
-         +----------+-------------+
++------------------+     +------------------+     +------------------+
+|   Claude Code    |     |  Browser/CI/CD   |     |  Dashboard       |
+|   (MCP stdio)    |     |  (REST API)      |     |  (SSE live)      |
++--------+---------+     +--------+---------+     +--------+---------+
+         |                        |                        |
+         v                        v                        v
++--------+---------+     +--------+---------+     +--------+---------+
+|   MCP Server     |     |    REST API      |     | Dashboard Server |
+|   (stdio)        |     |   (port 7780)    |     |   (port 7782)    |
++--------+---------+     +--------+---------+     +--------+---------+
+         |                        |                        |
+         +----------+-------------+----------+-------------+
                     |
                     v
          +----------+-----------+
@@ -225,7 +292,21 @@ insight → campaign     (informs)
 
 ## Configuration
 
-Configure via environment variables or `~/.marketing-brain/config.json`:
+Configure via environment variables, CLI, or `~/.marketing-brain/config.json`:
+
+```bash
+# View current config
+marketing config show
+
+# Set a value
+marketing config set learning.intervalMs 600000
+marketing config set research.trendWindowDays 14
+
+# Revert to default
+marketing config delete learning.intervalMs
+```
+
+### Environment Variables
 
 | Env Variable | Default | Description |
 |---|---|---|
@@ -234,6 +315,14 @@ Configure via environment variables or `~/.marketing-brain/config.json`:
 | `MARKETING_BRAIN_API_PORT` | `7780` | REST API port |
 | `MARKETING_BRAIN_API_KEY` | — | API authentication key |
 | `MARKETING_BRAIN_DB_PATH` | `~/.marketing-brain/marketing-brain.db` | Database path |
+
+### Ports
+
+| Service | Default Port | Description |
+|---|---|---|
+| REST API | 7780 | JSON-RPC endpoint for integrations |
+| MCP HTTP | 7781 | MCP HTTP transport (optional) |
+| Dashboard | 7782 | Live dashboard with SSE |
 
 ## Tech Stack
 
