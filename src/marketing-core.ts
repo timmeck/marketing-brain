@@ -44,10 +44,14 @@ import { IpcServer } from './ipc/server.js';
 // API
 import { ApiServer } from './api/server.js';
 
+// Dashboard
+import { DashboardServer } from './dashboard/server.js';
+
 export class MarketingCore {
   private db: Database.Database | null = null;
   private ipcServer: IpcServer | null = null;
   private apiServer: ApiServer | null = null;
+  private dashboardServer: DashboardServer | null = null;
   private learningEngine: LearningEngine | null = null;
   private researchEngine: ResearchEngine | null = null;
   private config: MarketingBrainConfig | null = null;
@@ -140,14 +144,35 @@ export class MarketingCore {
       logger.info(`REST API enabled on port ${config.api.port}`);
     }
 
-    // 12. Event listeners (synapse wiring)
+    // 12. Dashboard Server (SSE)
+    if (config.dashboard.enabled) {
+      const dashboardHtmlPath = path.resolve(
+        path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1')),
+        '../dashboard.html',
+      );
+      this.dashboardServer = new DashboardServer({
+        port: config.dashboard.port,
+        getDashboardHtml: () => {
+          try {
+            return fs.readFileSync(dashboardHtmlPath, 'utf-8');
+          } catch {
+            return '<html><body><h1>Dashboard HTML not found</h1></body></html>';
+          }
+        },
+        getStats: () => services.analytics.getSummary(),
+      });
+      this.dashboardServer.start();
+      logger.info(`Dashboard server enabled on port ${config.dashboard.port}`);
+    }
+
+    // 13. Event listeners (synapse wiring)
     this.setupEventListeners(synapseManager);
 
-    // 13. PID file
+    // 14. PID file
     const pidPath = path.join(path.dirname(config.dbPath), 'marketing-brain.pid');
     fs.writeFileSync(pidPath, String(process.pid));
 
-    // 14. Graceful shutdown
+    // 15. Graceful shutdown
     process.on('SIGINT', () => this.stop());
     process.on('SIGTERM', () => this.stop());
 
@@ -160,6 +185,7 @@ export class MarketingCore {
 
     this.researchEngine?.stop();
     this.learningEngine?.stop();
+    this.dashboardServer?.stop();
     this.apiServer?.stop();
     this.ipcServer?.stop();
     this.db?.close();

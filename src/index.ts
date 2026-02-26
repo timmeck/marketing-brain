@@ -12,13 +12,19 @@ import { rulesCommand } from './cli/commands/rules.js';
 import { suggestCommand } from './cli/commands/suggest.js';
 import { dashboardCommand } from './cli/commands/dashboard.js';
 import { importCommand } from './cli/commands/import.js';
+import { exportCommand } from './cli/commands/export.js';
+import { learnCommand } from './cli/commands/learn.js';
+import { networkCommand } from './cli/commands/network.js';
+import { queryCommand } from './cli/commands/query.js';
+import { configCommand } from './cli/commands/config.js';
+import { checkForUpdate, getCurrentVersion } from './cli/update-check.js';
 
 const program = new Command();
 
 program
   .name('marketing')
   .description('Marketing Brain — Self-Learning Marketing Intelligence System')
-  .version('0.1.0');
+  .version(getCurrentVersion());
 
 program.addCommand(startCommand());
 program.addCommand(stopCommand());
@@ -31,6 +37,11 @@ program.addCommand(rulesCommand());
 program.addCommand(suggestCommand());
 program.addCommand(dashboardCommand());
 program.addCommand(importCommand());
+program.addCommand(exportCommand());
+program.addCommand(learnCommand());
+program.addCommand(networkCommand());
+program.addCommand(queryCommand());
+program.addCommand(configCommand());
 
 // Hidden: MCP server (called by Claude Code)
 program
@@ -53,3 +64,6 @@ program
   });
 
 program.parse();
+
+// Non-blocking update check after command finishes
+checkForUpdate();

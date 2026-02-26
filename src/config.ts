@@ -18,6 +18,10 @@ const defaults: MarketingBrainConfig = {
     port: 7781,
     enabled: true,
   },
+  dashboard: {
+    port: 7782,
+    enabled: true,
+  },
   learning: {
     intervalMs: 900_000, // 15 min
     minOccurrences: 3,

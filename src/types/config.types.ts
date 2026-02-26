@@ -45,6 +45,11 @@ export interface McpHttpConfig {
   enabled: boolean;
 }
 
+export interface DashboardConfig {
+  port: number;
+  enabled: boolean;
+}
+
 export interface LogConfig {
   level: string;
   file: string;
@@ -64,6 +69,7 @@ export interface MarketingBrainConfig {
   ipc: IpcConfig;
   api: ApiConfig;
   mcpHttp: McpHttpConfig;
+  dashboard: DashboardConfig;
   learning: LearningConfig;
   matching: MatchingConfig;
   synapses: SynapsesConfig;
