@@ -133,6 +133,11 @@ marketing network --node post:42 Explore a specific node's connections
 marketing export                 Export all data as JSON
 ```
 
+### Ecosystem
+```
+marketing peers                  Show status of peer brains in the ecosystem
+```
+
 ### Configuration
 ```
 marketing config show            Show current configuration
@@ -347,10 +352,14 @@ Marketing Brain is part of the **Brain Ecosystem** — a family of standalone MC
 | [Brain](https://github.com/timmeck/brain) | Error memory & code intelligence | 7777 / 7778 |
 | [Trading Brain](https://github.com/timmeck/trading-brain) | Adaptive trading intelligence | 7779 / 7780 |
 | **Marketing Brain** | Content strategy & engagement | **7781** / 7782 / 7783 |
-| [Brain Core](https://github.com/timmeck/brain-core) | Shared infrastructure (optional) | — |
+| [Brain Core](https://github.com/timmeck/brain-core) | Shared infrastructure (IPC, MCP, REST API, CLI) | — |
 | [Brain Hub](https://timmeck.github.io/brain-hub/) | Ecosystem landing page | — |
 
-Each brain is **fully standalone** — [Brain Core](https://www.npmjs.com/package/@timmeck/brain-core) is an optional shared dependency that eliminates code duplication across brains.
+Each brain is **fully standalone** — [Brain Core](https://www.npmjs.com/package/@timmeck/brain-core) provides shared infrastructure (IPC, MCP, REST API, CLI) used by all brains, eliminating ~2,200 lines of duplicated code.
+
+### Cross-Brain Communication
+
+Brains can discover and query each other at runtime using the `marketing peers` CLI command and the CrossBrainClient IPC protocol. This enables cross-brain insights — for example, correlating trading signals with marketing engagement patterns.
 
 ## License
 
