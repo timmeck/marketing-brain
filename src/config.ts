@@ -11,15 +11,15 @@ const defaults: MarketingBrainConfig = {
     timeout: 5000,
   },
   api: {
-    port: 7780,
-    enabled: true,
-  },
-  mcpHttp: {
     port: 7781,
     enabled: true,
   },
-  dashboard: {
+  mcpHttp: {
     port: 7782,
+    enabled: true,
+  },
+  dashboard: {
+    port: 7783,
     enabled: true,
   },
   learning: {

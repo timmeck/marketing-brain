@@ -18,7 +18,7 @@ export function dashboardCommand(): Command {
     .option('-o, --output <path>', 'Output HTML file path')
     .option('--no-open', 'Generate HTML but do not open in browser')
     .option('-l, --live', 'Enable live mode (SSE updates from daemon)')
-    .option('-p, --port <n>', 'Dashboard server port for live mode', '7781')
+    .option('-p, --port <n>', 'Dashboard server port for live mode', '7783')
     .action(async (opts) => {
       await withIpc(async (client) => {
         console.log(`${icons.chart}  ${c.info('Generating dashboard...')}`);

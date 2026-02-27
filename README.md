@@ -194,31 +194,31 @@ These tools are available to Claude Code when Marketing Brain is configured:
 
 ## REST API
 
-Marketing Brain includes a REST API on port 7780 (default).
+Marketing Brain includes a REST API on port 7781 (default).
 
 ```bash
 # Health check
-curl http://localhost:7780/api/v1/health
+curl http://localhost:7781/api/v1/health
 
 # List all available methods
-curl http://localhost:7780/api/v1/methods
+curl http://localhost:7781/api/v1/methods
 
 # Call any method via RPC
-curl -X POST http://localhost:7780/api/v1/rpc \
+curl -X POST http://localhost:7781/api/v1/rpc \
   -H "Content-Type: application/json" \
   -d '{"method": "analytics.summary", "params": {}}'
 ```
 
 ## Dashboard Server
 
-The daemon starts a live dashboard server on port 7782 (default).
+The daemon starts a live dashboard server on port 7783 (default).
 
 ```bash
 # Open the dashboard in your browser
 marketing dashboard
 
 # Or visit directly while the daemon is running
-open http://localhost:7782
+open http://localhost:7783
 ```
 
 Features:
@@ -240,7 +240,7 @@ Features:
          v                        v                        v
 +--------+---------+     +--------+---------+     +--------+---------+
 |   MCP Server     |     |    REST API      |     | Dashboard Server |
-|   (stdio)        |     |   (port 7780)    |     |   (port 7782)    |
+|   (stdio)        |     |   (port 7781)    |     |   (port 7783)    |
 +--------+---------+     +--------+---------+     +--------+---------+
          |                        |                        |
          +----------+-------------+----------+-------------+
@@ -317,7 +317,7 @@ marketing config delete learning.intervalMs
 |---|---|---|
 | `MARKETING_BRAIN_DATA_DIR` | `~/.marketing-brain` | Data directory |
 | `MARKETING_BRAIN_LOG_LEVEL` | `info` | Log level |
-| `MARKETING_BRAIN_API_PORT` | `7780` | REST API port |
+| `MARKETING_BRAIN_API_PORT` | `7781` | REST API port |
 | `MARKETING_BRAIN_API_KEY` | — | API authentication key |
 | `MARKETING_BRAIN_DB_PATH` | `~/.marketing-brain/marketing-brain.db` | Database path |
 
@@ -325,9 +325,9 @@ marketing config delete learning.intervalMs
 
 | Service | Default Port | Description |
 |---|---|---|
-| REST API | 7780 | JSON-RPC endpoint for integrations |
-| MCP HTTP | 7781 | MCP HTTP transport (optional) |
-| Dashboard | 7782 | Live dashboard with SSE |
+| REST API | 7781 | JSON-RPC endpoint for integrations |
+| MCP HTTP | 7782 | MCP HTTP transport (optional) |
+| Dashboard | 7783 | Live dashboard with SSE |
 
 ## Tech Stack
 
@@ -338,9 +338,19 @@ marketing config delete learning.intervalMs
 - **Chalk** — Colored terminal output
 - **Winston** — Structured logging
 
-## Related
+## Brain Ecosystem
 
-- [Brain](https://github.com/timmeck/brain) — Adaptive error memory & code intelligence (same architecture, applied to debugging)
+Marketing Brain is part of the **Brain Ecosystem** — a family of standalone MCP servers that give Claude Code persistent, self-learning memory.
+
+| Brain | Purpose | Ports |
+|-------|---------|-------|
+| [Brain](https://github.com/timmeck/brain) | Error memory & code intelligence | 7777 / 7778 |
+| [Trading Brain](https://github.com/timmeck/trading-brain) | Adaptive trading intelligence | 7779 / 7780 |
+| **Marketing Brain** | Content strategy & engagement | **7781** / 7782 / 7783 |
+| [Brain Core](https://github.com/timmeck/brain-core) | Shared infrastructure (optional) | — |
+| [Brain Hub](https://timmeck.github.io/brain-hub/) | Ecosystem landing page | — |
+
+Each brain is **fully standalone** — [Brain Core](https://www.npmjs.com/package/@timmeck/brain-core) is an optional shared dependency that eliminates code duplication across brains.
 
 ## License
 
