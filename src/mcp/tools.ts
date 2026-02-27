@@ -213,4 +213,58 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );
+
+  // === Cross-Brain Ecosystem Tools ===
+
+  server.tool(
+    'marketing_ecosystem_status',
+    'Get status of all brains in the ecosystem (brain, trading-brain, marketing-brain).',
+    {},
+    async () => {
+      const result = await ipc.request('ecosystem.status', {});
+      return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    'marketing_query_peer',
+    'Query another brain in the ecosystem. Call any method on brain or trading-brain.',
+    {
+      peer: z.string().describe('Peer brain name: brain or trading-brain'),
+      method: z.string().describe('IPC method to call (e.g. analytics.summary, trade.recent)'),
+      args: z.record(z.string(), z.unknown()).optional().describe('Method arguments as key-value pairs'),
+    },
+    async ({ peer, method, args }) => {
+      const result = await ipc.request('ecosystem.queryPeer', { peer, method, args: args ?? {} });
+      return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    'marketing_cross_promote',
+    'Get insights from Brain as content ideas. Fetches active research insights that could become marketing content.',
+    {},
+    async () => {
+      const result = await ipc.request('ecosystem.queryPeer', {
+        peer: 'brain',
+        method: 'research.insights',
+        args: { activeOnly: true, limit: 10 },
+      });
+      return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    'marketing_trading_performance',
+    'Get trading performance stats for performance-related content posts.',
+    {},
+    async () => {
+      const result = await ipc.request('ecosystem.queryPeer', {
+        peer: 'trading-brain',
+        method: 'analytics.summary',
+        args: {},
+      });
+      return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    },
+  );
 }

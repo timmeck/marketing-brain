@@ -11,6 +11,7 @@ import type { SynapseService } from '../services/synapse.service.js';
 import type { AnalyticsService } from '../services/analytics.service.js';
 import type { InsightService } from '../services/insight.service.js';
 import type { LearningEngine } from '../learning/learning-engine.js';
+import type { CrossBrainClient } from '@timmeck/brain-core';
 
 export interface Services {
   post: PostService;
@@ -23,6 +24,7 @@ export interface Services {
   analytics: AnalyticsService;
   insight: InsightService;
   learning?: LearningEngine;
+  crossBrain?: CrossBrainClient;
 }
 
 type MethodHandler = (params: unknown) => unknown;
@@ -120,6 +122,27 @@ export class IpcRouter {
       ['learning.run',         () => {
         if (!s.learning) throw new Error('Learning engine not available');
         return s.learning.runCycle();
+      }],
+
+      // Cross-Brain Notifications
+      ['cross-brain.notify',   (params) => {
+        const { source, event, data, timestamp } = p(params);
+        logger.info(`Cross-brain notification from ${source}: ${event}`);
+        return { received: true, source, event, timestamp };
+      }],
+
+      // Ecosystem
+      ['ecosystem.status',     async () => {
+        if (!s.crossBrain) return { peers: [] };
+        const peers = await s.crossBrain.broadcast('status');
+        return { self: 'marketing-brain', peers };
+      }],
+      ['ecosystem.queryPeer',  async (params) => {
+        if (!s.crossBrain) throw new Error('Cross-brain client not available');
+        const { peer, method, args } = p(params);
+        const result = await s.crossBrain.query(peer, method, args);
+        if (result === null) throw new Error(`Peer '${peer}' not available`);
+        return result;
       }],
 
       // Status (cross-brain)

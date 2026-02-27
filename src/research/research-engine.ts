@@ -6,12 +6,9 @@ import type { TemplateRepository } from '../db/repositories/template.repository.
 import type { InsightRepository } from '../db/repositories/insight.repository.js';
 import type { SynapseManager } from '../synapses/synapse-manager.js';
 import { engagementScore } from '../learning/confidence-scorer.js';
-import { getLogger } from '../utils/logger.js';
+import { BaseResearchEngine } from '@timmeck/brain-core';
 
-export class ResearchEngine {
-  private timer: ReturnType<typeof setInterval> | null = null;
-  private logger = getLogger();
-
+export class ResearchEngine extends BaseResearchEngine {
   constructor(
     private config: ResearchConfig,
     private postRepo: PostRepository,
@@ -20,27 +17,8 @@ export class ResearchEngine {
     private templateRepo: TemplateRepository,
     private insightRepo: InsightRepository,
     private synapseManager: SynapseManager,
-  ) {}
-
-  start(): void {
-    // Initial delay before first run
-    setTimeout(() => {
-      this.runCycle();
-      this.timer = setInterval(() => {
-        try {
-          this.runCycle();
-        } catch (err) {
-          this.logger.error('Research cycle error:', err);
-        }
-      }, this.config.intervalMs);
-    }, this.config.initialDelayMs);
-  }
-
-  stop(): void {
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = null;
-    }
+  ) {
+    super(config);
   }
 
   runCycle(): void {

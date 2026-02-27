@@ -143,6 +143,20 @@ export function dashboardCommand(): Command {
         }));
         html = html.replace('{{GRAPH_EDGES}}', JSON.stringify(graphEdges));
 
+        // Ecosystem peers
+        let peersHtml = '';
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const eco: any = await client.request('ecosystem.status', {});
+          const peers = Array.isArray(eco?.peers) ? eco.peers : [];
+          for (const peer of peers) {
+            const r = peer.result ?? {};
+            peersHtml += `<div class="stat-card green"><div class="stat-number">${escapeHtml(r.version ?? '?')}</div><div class="stat-label">${escapeHtml(peer.name ?? '?')} (${r.methods ?? '?'} methods)</div></div>\n`;
+          }
+        } catch { /* peers not available */ }
+        if (!peersHtml) peersHtml = '<div class="stat-card"><div class="stat-number">0</div><div class="stat-label">No peers online</div></div>';
+        html = html.replace('{{ECOSYSTEM_PEERS}}', peersHtml);
+
         // Write output
         const outputPath = opts.output ?? path.join(process.env['TEMP'] ?? '/tmp', 'marketing-brain-dashboard.html');
         fs.writeFileSync(outputPath, html, 'utf-8');

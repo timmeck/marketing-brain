@@ -49,7 +49,7 @@ import { DashboardServer } from './dashboard/server.js';
 import { renderDashboard } from './dashboard/renderer.js';
 
 // Cross-Brain
-import { CrossBrainClient } from '@timmeck/brain-core';
+import { CrossBrainClient, CrossBrainNotifier } from '@timmeck/brain-core';
 
 export class MarketingCore {
   private db: Database.Database | null = null;
@@ -59,6 +59,7 @@ export class MarketingCore {
   private learningEngine: LearningEngine | null = null;
   private researchEngine: ResearchEngine | null = null;
   private crossBrain: CrossBrainClient | null = null;
+  private notifier: CrossBrainNotifier | null = null;
   private config: MarketingBrainConfig | null = null;
   private configPath?: string;
   private restarting = false;
@@ -133,11 +134,13 @@ export class MarketingCore {
     this.researchEngine.start();
     logger.info(`Research engine started (interval: ${config.research.intervalMs}ms)`);
 
-    // Expose learning engine to IPC
+    // Expose learning engine + cross-brain to IPC
     services.learning = this.learningEngine;
+    services.crossBrain = this.crossBrain ?? undefined;
 
-    // 10. Cross-Brain Client
+    // 10. Cross-Brain Client + Notifier
     this.crossBrain = new CrossBrainClient('marketing-brain');
+    this.notifier = new CrossBrainNotifier(this.crossBrain, 'marketing-brain');
 
     // 11. IPC Server
     const router = new IpcRouter(services);
@@ -262,6 +265,7 @@ export class MarketingCore {
 
   private setupEventListeners(synapseManager: SynapseManager): void {
     const bus = getEventBus();
+    const notifier = this.notifier;
 
     bus.on('post:created', ({ postId, campaignId }) => {
       if (campaignId) {
@@ -273,6 +277,12 @@ export class MarketingCore {
       }
     });
 
+    // Post published → notify peers (engagement tracking)
+    bus.on('post:published', ({ postId, platform }) => {
+      getLogger().info(`Post #${postId} published on ${platform}`);
+      notifier?.notify('post:published', { postId, platform });
+    });
+
     bus.on('strategy:reported', ({ strategyId, postId }) => {
       synapseManager.strengthen(
         { type: 'strategy', id: strategyId },
@@ -281,12 +291,19 @@ export class MarketingCore {
       );
     });
 
+    // Campaign created → notify peers
+    bus.on('campaign:created', ({ campaignId, name }) => {
+      getLogger().info(`Campaign #${campaignId} created: ${name}`);
+      notifier?.notify('campaign:created', { campaignId, name });
+    });
+
     bus.on('rule:learned', ({ ruleId, pattern }) => {
       getLogger().info(`New rule #${ruleId} learned: ${pattern}`);
     });
 
     bus.on('insight:created', ({ insightId, type }) => {
       getLogger().info(`New insight #${insightId} (${type})`);
+      notifier?.notifyPeer('brain', 'insight:created', { insightId, type });
     });
   }
 }

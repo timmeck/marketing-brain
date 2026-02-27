@@ -5,7 +5,7 @@ import type { RuleRepository } from '../db/repositories/rule.repository.js';
 import type { StrategyRepository } from '../db/repositories/strategy.repository.js';
 import type { SynapseManager } from '../synapses/synapse-manager.js';
 import { wilsonScore, engagementScore } from './confidence-scorer.js';
-import { getLogger } from '../utils/logger.js';
+import { BaseLearningEngine } from '@timmeck/brain-core';
 
 export interface LearningCycleResult {
   rulesCreated: number;
@@ -15,10 +15,7 @@ export interface LearningCycleResult {
   synapsesPruned: number;
 }
 
-export class LearningEngine {
-  private timer: ReturnType<typeof setInterval> | null = null;
-  private logger = getLogger();
-
+export class LearningEngine extends BaseLearningEngine {
   constructor(
     private config: LearningConfig,
     private postRepo: PostRepository,
@@ -26,23 +23,8 @@ export class LearningEngine {
     private ruleRepo: RuleRepository,
     private strategyRepo: StrategyRepository,
     private synapseManager: SynapseManager,
-  ) {}
-
-  start(): void {
-    this.timer = setInterval(() => {
-      try {
-        this.runCycle();
-      } catch (err) {
-        this.logger.error('Learning cycle error:', err);
-      }
-    }, this.config.intervalMs);
-  }
-
-  stop(): void {
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = null;
-    }
+  ) {
+    super(config);
   }
 
   runCycle(): LearningCycleResult {

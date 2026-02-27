@@ -54,7 +54,7 @@ Without Marketing Brain, your marketing knowledge lives in your head. With it:
 - **Research Insights** — Tabbed view: Trends, Gaps, Synergies, Templates, Optimizations
 - **Real-Time Updates** — SSE-powered live stats refresh every 30 seconds
 
-### MCP Tools (13 tools for Claude Code)
+### MCP Tools (17 tools for Claude Code)
 - **Draft Checking** — Check a post against learned rules before publishing
 - **Post Reporting** — Track published posts with one command
 - **Engagement Updates** — Feed in likes, shares, impressions as they come
@@ -196,6 +196,10 @@ These tools are available to Claude Code when Marketing Brain is configured:
 | `marketing_insight_list` | Get active insights (trends, gaps, synergies) |
 | `marketing_analytics_summary` | Full analytics overview |
 | `marketing_analytics_best` | Top performing posts and strategies |
+| `marketing_ecosystem_status` | Get status of all brains in the ecosystem |
+| `marketing_query_peer` | Query another brain in the ecosystem (method + params) |
+| `marketing_cross_promote` | Pull Brain insights as content ideas for cross-promotion |
+| `marketing_trading_performance` | Pull Trading Brain stats for performance-related posts |
 
 ## REST API
 
@@ -352,14 +356,18 @@ Marketing Brain is part of the **Brain Ecosystem** — a family of standalone MC
 | [Brain](https://github.com/timmeck/brain) | Error memory & code intelligence | 7777 / 7778 |
 | [Trading Brain](https://github.com/timmeck/trading-brain) | Adaptive trading intelligence | 7779 / 7780 |
 | **Marketing Brain** | Content strategy & engagement | **7781** / 7782 / 7783 |
-| [Brain Core](https://github.com/timmeck/brain-core) | Shared infrastructure (IPC, MCP, REST API, CLI) | — |
+| [Brain Core](https://github.com/timmeck/brain-core) v1.6.0 | Shared infrastructure (IPC, MCP, REST, CLI, math, synapses) | — |
 | [Brain Hub](https://timmeck.github.io/brain-hub/) | Ecosystem landing page | — |
 
-Each brain is **fully standalone** — [Brain Core](https://www.npmjs.com/package/@timmeck/brain-core) provides shared infrastructure (IPC, MCP, REST API, CLI) used by all brains, eliminating ~2,200 lines of duplicated code.
+Each brain is **fully standalone** — [Brain Core](https://www.npmjs.com/package/@timmeck/brain-core) provides shared infrastructure (IPC, MCP, REST API, CLI, math, synapse algorithms) used by all brains, eliminating ~2,800 lines of duplicated code.
 
 ### Cross-Brain Communication
 
-Brains can discover and query each other at runtime using the `marketing peers` CLI command and the CrossBrainClient IPC protocol. This enables cross-brain insights — for example, correlating trading signals with marketing engagement patterns.
+Brains discover and query each other at runtime via IPC named pipes. Use `marketing peers` to see online peers, or the `marketing_query_peer` / `marketing_ecosystem_status` MCP tools to access peer data from Claude Code. Use `marketing_cross_promote` to pull Brain insights as content ideas, or `marketing_trading_performance` to pull Trading Brain stats for performance posts. Brains also push event notifications — when Marketing Brain publishes a post or creates a campaign, peers are notified automatically.
+
+### Ecosystem Dashboard
+
+The interactive HTML dashboard (`marketing dashboard`) includes an Ecosystem Peers section showing the live status of all connected brains.
 
 ## License
 
