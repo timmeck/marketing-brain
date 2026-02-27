@@ -356,7 +356,7 @@ Marketing Brain is part of the **Brain Ecosystem** — a family of standalone MC
 | [Brain](https://github.com/timmeck/brain) | Error memory & code intelligence | 7777 / 7778 |
 | [Trading Brain](https://github.com/timmeck/trading-brain) | Adaptive trading intelligence | 7779 / 7780 |
 | **Marketing Brain** | Content strategy & engagement | **7781** / 7782 / 7783 |
-| [Brain Core](https://github.com/timmeck/brain-core) v1.6.0 | Shared infrastructure (IPC, MCP, REST, CLI, math, synapses) | — |
+| [Brain Core](https://github.com/timmeck/brain-core) v1.5.0 | Shared infrastructure (IPC, MCP, REST, CLI, math, synapses) | — |
 | [Brain Hub](https://timmeck.github.io/brain-hub/) | Ecosystem landing page | — |
 
 Each brain is **fully standalone** — [Brain Core](https://www.npmjs.com/package/@timmeck/brain-core) provides shared infrastructure (IPC, MCP, REST API, CLI, math, synapse algorithms) used by all brains, eliminating ~2,800 lines of duplicated code.
