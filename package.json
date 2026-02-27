@@ -16,16 +16,27 @@
     "test:coverage": "vitest --coverage"
   },
   "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "claude",
+    "claude-code",
+    "cursor",
+    "windsurf",
+    "cline",
+    "ai-tools",
     "marketing-intelligence",
     "content-strategy",
-    "mcp",
-    "claude-code",
+    "developer-tools",
     "hebbian-learning",
-    "synapse-network",
     "engagement-tracking"
   ],
   "author": "Tim Mecklenburg",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timmeck/marketing-brain"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "@timmeck/brain-core": "^1.1.0",
