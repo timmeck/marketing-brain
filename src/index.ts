@@ -17,6 +17,7 @@ import { learnCommand } from './cli/commands/learn.js';
 import { networkCommand } from './cli/commands/network.js';
 import { queryCommand } from './cli/commands/query.js';
 import { configCommand } from './cli/commands/config.js';
+import { peersCommand } from './cli/commands/peers.js';
 import { checkForUpdate, getCurrentVersion } from './cli/update-check.js';
 
 const program = new Command();
@@ -42,6 +43,7 @@ program.addCommand(learnCommand());
 program.addCommand(networkCommand());
 program.addCommand(queryCommand());
 program.addCommand(configCommand());
+program.addCommand(peersCommand());
 
 // Hidden: MCP server (called by Claude Code)
 program

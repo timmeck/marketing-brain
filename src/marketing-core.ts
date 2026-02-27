@@ -48,6 +48,9 @@ import { ApiServer } from './api/server.js';
 import { DashboardServer } from './dashboard/server.js';
 import { renderDashboard } from './dashboard/renderer.js';
 
+// Cross-Brain
+import { CrossBrainClient } from '@timmeck/brain-core';
+
 export class MarketingCore {
   private db: Database.Database | null = null;
   private ipcServer: IpcServer | null = null;
@@ -55,6 +58,7 @@ export class MarketingCore {
   private dashboardServer: DashboardServer | null = null;
   private learningEngine: LearningEngine | null = null;
   private researchEngine: ResearchEngine | null = null;
+  private crossBrain: CrossBrainClient | null = null;
   private config: MarketingBrainConfig | null = null;
   private configPath?: string;
   private restarting = false;
@@ -132,7 +136,10 @@ export class MarketingCore {
     // Expose learning engine to IPC
     services.learning = this.learningEngine;
 
-    // 10. IPC Server
+    // 10. Cross-Brain Client
+    this.crossBrain = new CrossBrainClient('marketing-brain');
+
+    // 11. IPC Server
     const router = new IpcRouter(services);
     this.ipcServer = new IpcServer(router, config.ipc.pipeName);
     this.ipcServer.start();

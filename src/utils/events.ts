@@ -1,6 +1,6 @@
-import { EventEmitter } from 'node:events';
+import { TypedEventBus as GenericEventBus } from '@timmeck/brain-core';
 
-export interface MarketingEvents {
+export type MarketingEvents = {
   'post:created': { postId: number; campaignId: number | null; platform: string };
   'post:published': { postId: number; platform: string };
   'engagement:updated': { postId: number; engagementId: number };
@@ -12,27 +12,11 @@ export interface MarketingEvents {
   'insight:created': { insightId: number; type: string };
   'synapse:created': { synapseId: number; sourceType: string; targetType: string };
   'synapse:strengthened': { synapseId: number; newWeight: number };
-}
+};
 
 export type MarketingEventName = keyof MarketingEvents;
 
-export class TypedEventBus extends EventEmitter {
-  emit<K extends MarketingEventName>(event: K, data: MarketingEvents[K]): boolean {
-    return super.emit(event, data);
-  }
-
-  on<K extends MarketingEventName>(event: K, listener: (data: MarketingEvents[K]) => void): this {
-    return super.on(event, listener);
-  }
-
-  once<K extends MarketingEventName>(event: K, listener: (data: MarketingEvents[K]) => void): this {
-    return super.once(event, listener);
-  }
-
-  off<K extends MarketingEventName>(event: K, listener: (data: MarketingEvents[K]) => void): this {
-    return super.off(event, listener);
-  }
-}
+export class TypedEventBus extends GenericEventBus<MarketingEvents> {}
 
 let busInstance: TypedEventBus | null = null;
 
