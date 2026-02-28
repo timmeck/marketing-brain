@@ -10,6 +10,7 @@ import type { AudienceService } from '../services/audience.service.js';
 import type { SynapseService } from '../services/synapse.service.js';
 import type { AnalyticsService } from '../services/analytics.service.js';
 import type { InsightService } from '../services/insight.service.js';
+import type { MemoryService } from '../services/memory.service.js';
 import type { LearningEngine } from '../learning/learning-engine.js';
 import type { CrossBrainClient } from '@timmeck/brain-core';
 
@@ -23,6 +24,7 @@ export interface Services {
   synapse: SynapseService;
   analytics: AnalyticsService;
   insight: InsightService;
+  memory: MemoryService;
   learning?: LearningEngine;
   crossBrain?: CrossBrainClient;
 }
@@ -113,6 +115,19 @@ export class IpcRouter {
       ['synapse.stats',        () => s.synapse.getNetworkStats()],
       ['synapse.strongest',    (params) => s.synapse.getStrongest(p(params)?.limit)],
 
+      // Memory
+      ['memory.remember',      (params) => s.memory.remember(p(params))],
+      ['memory.recall',        (params) => s.memory.recall(p(params))],
+      ['memory.forget',        (params) => s.memory.forget(p(params).memoryId ?? p(params).memory_id)],
+      ['memory.preferences',   () => s.memory.getPreferences()],
+      ['memory.decisions',     () => s.memory.getDecisions()],
+      ['memory.goals',         () => s.memory.getGoals()],
+      ['memory.lessons',       () => s.memory.getLessons()],
+      ['memory.stats',         () => s.memory.getStats()],
+      ['session.start',        (params) => s.memory.startSession(p(params))],
+      ['session.end',          (params) => s.memory.endSession(p(params))],
+      ['session.history',      (params) => s.memory.getSessionHistory(p(params).limit)],
+
       // Analytics
       ['analytics.summary',    () => s.analytics.getSummary()],
       ['analytics.top',        (params) => s.analytics.getTopPerformers(p(params)?.limit)],
@@ -148,7 +163,7 @@ export class IpcRouter {
       // Status (cross-brain)
       ['status',               () => ({
         name: 'marketing-brain',
-        version: '0.3.0',
+        version: '0.5.0',
         uptime: Math.floor(process.uptime()),
         pid: process.pid,
         methods: this.listMethods().length,

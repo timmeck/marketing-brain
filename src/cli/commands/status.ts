@@ -66,6 +66,16 @@ export function statusCommand(): Command {
 
         console.log(`  ${icons.insight}  ${c.orange.bold('Research')}`);
         console.log(`     ${c.label('Insights:')}    ${c.value(summary.insights?.active ?? 0)} active`);
+        console.log();
+
+        console.log(`  ${icons.brain}  ${c.purple.bold('Memory')}`);
+        console.log(`     ${c.label('Memories:')}    ${c.value(summary.memory?.active ?? 0)} active`);
+        console.log(`     ${c.label('Sessions:')}    ${c.value(summary.memory?.sessions ?? 0)}`);
+        const cats = summary.memory?.byCategory;
+        if (cats && Object.keys(cats).length > 0) {
+          const catStr = Object.entries(cats).map(([k, v]: [string, unknown]) => `${k}: ${v}`).join(', ');
+          console.log(`     ${c.label('Categories:')}  ${c.dim(catStr)}`);
+        }
 
         console.log(`\n${divider()}`);
       });

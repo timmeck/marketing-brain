@@ -5,6 +5,8 @@ import type { StrategyRepository } from '../db/repositories/strategy.repository.
 import type { RuleRepository } from '../db/repositories/rule.repository.js';
 import type { TemplateRepository } from '../db/repositories/template.repository.js';
 import type { InsightRepository } from '../db/repositories/insight.repository.js';
+import type { MemoryRepository } from '../db/repositories/memory.repository.js';
+import type { SessionRepository } from '../db/repositories/session.repository.js';
 import type { SynapseManager } from '../synapses/synapse-manager.js';
 
 export class AnalyticsService {
@@ -17,6 +19,8 @@ export class AnalyticsService {
     private templateRepo: TemplateRepository,
     private insightRepo: InsightRepository,
     private synapseManager: SynapseManager,
+    private memoryRepo?: MemoryRepository,
+    private sessionRepo?: SessionRepository,
   ) {}
 
   getSummary() {
@@ -49,6 +53,11 @@ export class AnalyticsService {
         synapses: network.totalSynapses,
         nodes: network.totalNodes,
         avgWeight: network.avgWeight,
+      },
+      memory: {
+        active: this.memoryRepo?.countActive() ?? 0,
+        byCategory: this.memoryRepo?.countByCategory() ?? {},
+        sessions: this.sessionRepo?.countAll() ?? 0,
       },
     };
   }

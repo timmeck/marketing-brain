@@ -9,4 +9,5 @@ export const icons = {
   campaign: '🎯',
   rule: '📏',
   template: '📋',
+  brain: '🧠',
 };

@@ -18,6 +18,8 @@ import { TemplateRepository } from './db/repositories/template.repository.js';
 import { AudienceRepository } from './db/repositories/audience.repository.js';
 import { SynapseRepository } from './db/repositories/synapse.repository.js';
 import { InsightRepository } from './db/repositories/insight.repository.js';
+import { MemoryRepository } from './db/repositories/memory.repository.js';
+import { SessionRepository } from './db/repositories/session.repository.js';
 
 // Services
 import { PostService } from './services/post.service.js';
@@ -29,6 +31,7 @@ import { AudienceService } from './services/audience.service.js';
 import { SynapseService } from './services/synapse.service.js';
 import { AnalyticsService } from './services/analytics.service.js';
 import { InsightService } from './services/insight.service.js';
+import { MemoryService } from './services/memory.service.js';
 
 // Synapses
 import { SynapseManager } from './synapses/synapse-manager.js';
@@ -97,11 +100,14 @@ export class MarketingCore {
     const audienceRepo = new AudienceRepository(this.db);
     const synapseRepo = new SynapseRepository(this.db);
     const insightRepo = new InsightRepository(this.db);
+    const memoryRepo = new MemoryRepository(this.db);
+    const sessionRepo = new SessionRepository(this.db);
 
     // 6. Synapse Manager
     const synapseManager = new SynapseManager(synapseRepo, config.synapses);
 
     // 7. Services
+    const memoryService = new MemoryService(memoryRepo, sessionRepo, synapseManager);
     const services: Services = {
       post: new PostService(postRepo, engagementRepo, synapseManager),
       campaign: new CampaignService(campaignRepo, postRepo, engagementRepo, synapseManager),
@@ -114,8 +120,10 @@ export class MarketingCore {
         postRepo, engagementRepo, campaignRepo,
         strategyRepo, ruleRepo, templateRepo,
         insightRepo, synapseManager,
+        memoryRepo, sessionRepo,
       ),
       insight: new InsightService(insightRepo, synapseManager),
+      memory: memoryService,
     };
 
     // 8. Learning Engine

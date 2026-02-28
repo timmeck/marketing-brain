@@ -214,6 +214,96 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
     },
   );
 
+  // === Memory & Session Tools ===
+
+  // 14. marketing_remember
+  server.tool(
+    'marketing_remember',
+    'Store a memory — preferences, decisions, context, facts, goals, or lessons learned from marketing.',
+    {
+      content: z.string().describe('The memory content to store'),
+      category: z.enum(['preference', 'decision', 'context', 'fact', 'goal', 'lesson']).describe('Memory category'),
+      key: z.string().optional().describe('Unique key for upsert (updates existing memory with same key)'),
+      importance: z.number().min(1).max(10).optional().describe('Importance 1-10 (default 5)'),
+      tags: z.array(z.string()).optional().describe('Tags for organization'),
+    },
+    async ({ content, category, key, importance, tags }) => {
+      const result = await ipc.request('memory.remember', { content, category, key, importance, tags }) as { memoryId: number; superseded?: number };
+      const msg = result.superseded
+        ? `Memory #${result.memoryId} stored (${category}), superseding #${result.superseded}`
+        : `Memory #${result.memoryId} stored (${category})`;
+      return { content: [{ type: 'text' as const, text: msg }] };
+    },
+  );
+
+  // 15. marketing_recall
+  server.tool(
+    'marketing_recall',
+    'Search marketing memories by natural language query. Returns matching memories sorted by relevance.',
+    {
+      query: z.string().describe('Natural language search query'),
+      category: z.enum(['preference', 'decision', 'context', 'fact', 'goal', 'lesson']).optional().describe('Filter by category'),
+      limit: z.number().optional().describe('Max results (default 10)'),
+    },
+    async ({ query, category, limit }) => {
+      const results = await ipc.request('memory.recall', { query, category, limit }) as Array<{ id: number; category: string; content: string; key?: string }>;
+      if (!Array.isArray(results) || results.length === 0) {
+        return { content: [{ type: 'text' as const, text: 'No memories found.' }] };
+      }
+      const lines = results.map(m =>
+        `#${m.id} [${m.category}] ${m.content.slice(0, 200)}${m.key ? ` (key: ${m.key})` : ''}`
+      );
+      return { content: [{ type: 'text' as const, text: `Found ${results.length} memory/memories:\n${lines.join('\n')}` }] };
+    },
+  );
+
+  // 16. marketing_session_start
+  server.tool(
+    'marketing_session_start',
+    'Start a new marketing session. Track goals and context for the conversation.',
+    {
+      goals: z.array(z.string()).optional().describe('Session goals'),
+    },
+    async ({ goals }) => {
+      const result = await ipc.request('session.start', { goals }) as { sessionId: number; dbSessionId: string };
+      return { content: [{ type: 'text' as const, text: `Session #${result.sessionId} started (${result.dbSessionId})` }] };
+    },
+  );
+
+  // 17. marketing_session_end
+  server.tool(
+    'marketing_session_end',
+    'End a marketing session with a summary of what was accomplished.',
+    {
+      session_id: z.number().describe('Session ID to end'),
+      summary: z.string().describe('Summary of what was accomplished'),
+      outcome: z.enum(['completed', 'paused', 'abandoned']).optional().describe('Session outcome (default: completed)'),
+    },
+    async ({ session_id, summary, outcome }) => {
+      await ipc.request('session.end', { sessionId: session_id, summary, outcome });
+      return { content: [{ type: 'text' as const, text: `Session #${session_id} ended (${outcome ?? 'completed'})` }] };
+    },
+  );
+
+  // 18. marketing_session_history
+  server.tool(
+    'marketing_session_history',
+    'List past marketing sessions with summaries and outcomes.',
+    {
+      limit: z.number().optional().describe('Max results (default 10)'),
+    },
+    async ({ limit }) => {
+      const sessions = await ipc.request('session.history', { limit: limit ?? 10 }) as Array<{ id: number; outcome?: string; summary?: string; started_at: string }>;
+      if (!Array.isArray(sessions) || sessions.length === 0) {
+        return { content: [{ type: 'text' as const, text: 'No sessions found.' }] };
+      }
+      const lines = sessions.map(s =>
+        `#${s.id} [${s.outcome ?? 'active'}] ${s.summary ?? '(no summary)'} — ${s.started_at}`
+      );
+      return { content: [{ type: 'text' as const, text: `${sessions.length} session(s):\n${lines.join('\n')}` }] };
+    },
+  );
+
   // === Cross-Brain Ecosystem Tools ===
 
   server.tool(

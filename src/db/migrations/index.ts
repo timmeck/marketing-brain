@@ -5,6 +5,8 @@ import { up as learningSchema } from './002_learning_schema.js';
 import { up as synapseSchema } from './003_synapse_schema.js';
 import { up as insightsSchema } from './004_insights_schema.js';
 import { up as ftsIndexes } from './005_fts_indexes.js';
+import { up as memorySchema } from './006_memory_schema.js';
+import { up as memoryFts } from './007_memory_fts.js';
 
 interface Migration {
   version: number;
@@ -18,6 +20,8 @@ const migrations: Migration[] = [
   { version: 3, name: '003_synapse_schema', up: synapseSchema },
   { version: 4, name: '004_insights_schema', up: insightsSchema },
   { version: 5, name: '005_fts_indexes', up: ftsIndexes },
+  { version: 6, name: '006_memory_schema', up: memorySchema },
+  { version: 7, name: '007_memory_fts', up: memoryFts },
 ];
 
 function ensureMigrationsTable(db: Database.Database): void {

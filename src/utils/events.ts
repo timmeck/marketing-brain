@@ -12,6 +12,10 @@ export type MarketingEvents = {
   'insight:created': { insightId: number; type: string };
   'synapse:created': { synapseId: number; sourceType: string; targetType: string };
   'synapse:strengthened': { synapseId: number; newWeight: number };
+  'memory:created': { memoryId: number; category: string };
+  'memory:superseded': { oldId: number; newId: number };
+  'session:started': { sessionId: number };
+  'session:ended': { sessionId: number; summary: string };
 };
 
 export type MarketingEventName = keyof MarketingEvents;

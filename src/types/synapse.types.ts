@@ -5,7 +5,9 @@ export type NodeType =
   | 'template'
   | 'rule'
   | 'audience'
-  | 'insight';
+  | 'insight'
+  | 'memory'
+  | 'session';
 
 export type SynapseType =
   | 'belongs_to'
@@ -17,7 +19,8 @@ export type SynapseType =
   | 'generated_from'
   | 'cross_promotes'
   | 'informs'
-  | 'co_occurs';
+  | 'co_occurs'
+  | 'remembers';
 
 export interface SynapseRecord {
   id: number;

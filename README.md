@@ -54,12 +54,21 @@ Without Marketing Brain, your marketing knowledge lives in your head. With it:
 - **Research Insights** — Tabbed view: Trends, Gaps, Synergies, Templates, Optimizations
 - **Real-Time Updates** — SSE-powered live stats refresh every 30 seconds
 
-### MCP Tools (17 tools for Claude Code)
+### Never Forget — Memory & Sessions
+- **Persistent Memory** — Store preferences, decisions, context, facts, goals, and lessons learned
+- **Key-Based Upsert** — Update existing memories by unique key, auto-superseding old values
+- **Full-Text Search** — Natural language recall with FTS5-powered search
+- **Session Tracking** — Track conversation goals, summaries, and outcomes
+- **Importance Scoring** — 1–10 importance scale with category-based organization
+- **Synapse-Wired** — Memories and sessions connect to the Hebbian network via 'remembers' edges
+
+### MCP Tools (22 tools for Claude Code)
 - **Draft Checking** — Check a post against learned rules before publishing
 - **Post Reporting** — Track published posts with one command
 - **Engagement Updates** — Feed in likes, shares, impressions as they come
 - **Strategy Memory** — Report what worked, get suggestions for what's next
 - **Template Library** — Find and reuse high-performing post structures
+- **Memory & Sessions** — Store and recall memories, track session goals and outcomes
 - **Analytics** — Full dashboard data accessible from Claude Code
 
 ## Quick Start
@@ -198,6 +207,11 @@ These tools are available to Claude Code when Marketing Brain is configured:
 | `marketing_analytics_best` | Top performing posts and strategies |
 | `marketing_ecosystem_status` | Get status of all brains in the ecosystem |
 | `marketing_query_peer` | Query another brain in the ecosystem (method + params) |
+| `marketing_remember` | Store a memory (preference, decision, context, fact, goal, lesson) |
+| `marketing_recall` | Search memories by natural language query |
+| `marketing_session_start` | Start a session with optional goals |
+| `marketing_session_end` | End a session with summary and outcome |
+| `marketing_session_history` | List past sessions with summaries |
 | `marketing_cross_promote` | Pull Brain insights as content ideas for cross-promotion |
 | `marketing_trading_performance` | Pull Trading Brain stats for performance-related posts |
 
@@ -292,6 +306,7 @@ rule → post            (prevents / recommends)
 template → post        (generated_from)
 campaign → campaign    (cross_promotes)
 insight → campaign     (informs)
+session → memory       (remembers)
 ```
 
 ## How It Learns
@@ -354,8 +369,8 @@ Marketing Brain is part of the **Brain Ecosystem** — a family of standalone MC
 | Brain | Purpose | Ports |
 |-------|---------|-------|
 | [Brain](https://github.com/timmeck/brain) v2.2.0 | Error memory, code intelligence & persistent context | 7777 / 7778 |
-| [Trading Brain](https://github.com/timmeck/trading-brain) | Adaptive trading intelligence | 7779 / 7780 |
-| **Marketing Brain** | Content strategy & engagement | **7781** / 7782 / 7783 |
+| [Trading Brain](https://github.com/timmeck/trading-brain) v1.3.0 | Adaptive trading intelligence with memory & sessions | 7779 / 7780 |
+| **Marketing Brain** v0.5.0 | Content strategy & engagement with memory & sessions | **7781** / 7782 / 7783 |
 | [Brain Core](https://github.com/timmeck/brain-core) v1.6.0 | Shared infrastructure (IPC, MCP, REST, CLI, math, synapses, memory) | — |
 | [Brain Hub](https://timmeck.github.io/brain-hub/) | Ecosystem landing page | — |
 
