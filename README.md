@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@timmeck/marketing-brain)](https://www.npmjs.com/package/@timmeck/marketing-brain)
 [![npm downloads](https://img.shields.io/npm/dm/@timmeck/marketing-brain)](https://www.npmjs.com/package/@timmeck/marketing-brain)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/timmeck/marketing-brain)](https://github.com/timmeck/marketing-brain)
+[![GitHub stars](https://img.shields.io/github/stars/timmeck/marketing-brain?style=social)](https://github.com/timmeck/marketing-brain)
 
 **Self-Learning Marketing Intelligence System for Claude Code**
 
@@ -383,6 +383,13 @@ Brains discover and query each other at runtime via IPC named pipes. Use `market
 ### Ecosystem Dashboard
 
 The interactive HTML dashboard (`marketing dashboard`) includes an Ecosystem Peers section showing the live status of all connected brains.
+
+## Support
+
+If Marketing Brain helps you, consider giving it a star — it helps others discover the project and keeps development going.
+
+[![Star this repo](https://img.shields.io/github/stars/timmeck/marketing-brain?style=social)](https://github.com/timmeck/marketing-brain)
+[![Sponsor](https://img.shields.io/badge/Sponsor-Support%20Development-ea4aaa)](https://github.com/sponsors/timmeck)
 
 ## License
 
