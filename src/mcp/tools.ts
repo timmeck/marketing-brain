@@ -1,8 +1,20 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { IpcClient } from '../ipc/client.js';
+import type { IpcRouter } from '../ipc/router.js';
+
+type BrainCall = (method: string, params: unknown) => unknown | Promise<unknown>;
 
 export function registerTools(server: McpServer, ipc: IpcClient): void {
+  registerToolsWithCaller(server, (method, params) => ipc.request(method, params));
+}
+
+/** Register tools using router directly (for HTTP MCP transport inside daemon) */
+export function registerToolsDirect(server: McpServer, router: IpcRouter): void {
+  registerToolsWithCaller(server, (method, params) => router.handle(method, params));
+}
+
+function registerToolsWithCaller(server: McpServer, call: BrainCall): void {
 
   // 1. post.draft — Check a post draft against rules
   server.tool(
@@ -13,7 +25,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       platform: z.string().describe('Target platform (x, reddit, linkedin, bluesky)'),
     },
     async ({ content, platform }) => {
-      const result = await ipc.request('rule.check', { content, platform });
+      const result = await call('rule.check', { content, platform });
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -33,10 +45,10 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
     async ({ platform, content, format, url, hashtags, campaign }) => {
       let campaignId: number | null = null;
       if (campaign) {
-        const camp = await ipc.request('campaign.create', { name: campaign }) as { id: number };
+        const camp = await call('campaign.create', { name: campaign }) as { id: number };
         campaignId = camp.id;
       }
-      const result = await ipc.request('post.report', {
+      const result = await call('post.report', {
         platform, content, format: format ?? 'text',
         url, hashtags, campaign_id: campaignId,
         status: 'published', published_at: new Date().toISOString(),
@@ -60,7 +72,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       reach: z.number().optional().describe('Current reach count'),
     },
     async (params) => {
-      const result = await ipc.request('post.engagement', params);
+      const result = await call('post.engagement', params);
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -73,7 +85,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       post_id: z.number().describe('Post ID to find similar posts for'),
     },
     async ({ post_id }) => {
-      const result = await ipc.request('post.similar', { id: post_id });
+      const result = await call('post.similar', { id: post_id });
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -89,7 +101,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       platform: z.string().optional().describe('Primary platform'),
     },
     async (params) => {
-      const result = await ipc.request('campaign.create', params);
+      const result = await call('campaign.create', params);
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -102,7 +114,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       campaign_id: z.number().describe('Campaign ID'),
     },
     async ({ campaign_id }) => {
-      const result = await ipc.request('campaign.stats', { id: campaign_id });
+      const result = await call('campaign.stats', { id: campaign_id });
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -118,7 +130,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       post_id: z.number().optional().describe('Related post ID'),
     },
     async (params) => {
-      const result = await ipc.request('strategy.report', params);
+      const result = await call('strategy.report', params);
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -132,7 +144,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       limit: z.number().optional().describe('Max results (default: 5)'),
     },
     async ({ query, limit }) => {
-      const result = await ipc.request('strategy.suggest', { query, limit: limit ?? 5 });
+      const result = await call('strategy.suggest', { query, limit: limit ?? 5 });
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -149,9 +161,9 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
     async ({ query, platform, limit }) => {
       let result;
       if (platform) {
-        result = await ipc.request('template.byPlatform', { platform, limit: limit ?? 10 });
+        result = await call('template.byPlatform', { platform, limit: limit ?? 10 });
       } else {
-        result = await ipc.request('template.find', { query: query ?? '', limit: limit ?? 10 });
+        result = await call('template.find', { query: query ?? '', limit: limit ?? 10 });
       }
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
@@ -166,7 +178,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       platform: z.string().describe('Target platform'),
     },
     async ({ content, platform }) => {
-      const result = await ipc.request('rule.check', { content, platform });
+      const result = await call('rule.check', { content, platform });
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -182,9 +194,9 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
     async ({ type, limit }) => {
       let result;
       if (type) {
-        result = await ipc.request('insight.byType', { type, limit: limit ?? 20 });
+        result = await call('insight.byType', { type, limit: limit ?? 20 });
       } else {
-        result = await ipc.request('insight.list', { limit: limit ?? 20 });
+        result = await call('insight.list', { limit: limit ?? 20 });
       }
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
@@ -196,7 +208,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
     'Get a complete analytics summary: posts, campaigns, strategies, rules, insights, and network stats.',
     {},
     async () => {
-      const result = await ipc.request('analytics.summary', {});
+      const result = await call('analytics.summary', {});
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -209,7 +221,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       limit: z.number().optional().describe('Max results per category'),
     },
     async ({ limit }) => {
-      const result = await ipc.request('analytics.top', { limit: limit ?? 10 });
+      const result = await call('analytics.top', { limit: limit ?? 10 });
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -228,7 +240,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       tags: z.array(z.string()).optional().describe('Tags for organization'),
     },
     async ({ content, category, key, importance, tags }) => {
-      const result = await ipc.request('memory.remember', { content, category, key, importance, tags }) as { memoryId: number; superseded?: number };
+      const result = await call('memory.remember', { content, category, key, importance, tags }) as { memoryId: number; superseded?: number };
       const msg = result.superseded
         ? `Memory #${result.memoryId} stored (${category}), superseding #${result.superseded}`
         : `Memory #${result.memoryId} stored (${category})`;
@@ -246,7 +258,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       limit: z.number().optional().describe('Max results (default 10)'),
     },
     async ({ query, category, limit }) => {
-      const results = await ipc.request('memory.recall', { query, category, limit }) as Array<{ id: number; category: string; content: string; key?: string }>;
+      const results = await call('memory.recall', { query, category, limit }) as Array<{ id: number; category: string; content: string; key?: string }>;
       if (!Array.isArray(results) || results.length === 0) {
         return { content: [{ type: 'text' as const, text: 'No memories found.' }] };
       }
@@ -265,7 +277,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       goals: z.array(z.string()).optional().describe('Session goals'),
     },
     async ({ goals }) => {
-      const result = await ipc.request('session.start', { goals }) as { sessionId: number; dbSessionId: string };
+      const result = await call('session.start', { goals }) as { sessionId: number; dbSessionId: string };
       return { content: [{ type: 'text' as const, text: `Session #${result.sessionId} started (${result.dbSessionId})` }] };
     },
   );
@@ -280,7 +292,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       outcome: z.enum(['completed', 'paused', 'abandoned']).optional().describe('Session outcome (default: completed)'),
     },
     async ({ session_id, summary, outcome }) => {
-      await ipc.request('session.end', { sessionId: session_id, summary, outcome });
+      await call('session.end', { sessionId: session_id, summary, outcome });
       return { content: [{ type: 'text' as const, text: `Session #${session_id} ended (${outcome ?? 'completed'})` }] };
     },
   );
@@ -293,7 +305,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       limit: z.number().optional().describe('Max results (default 10)'),
     },
     async ({ limit }) => {
-      const sessions = await ipc.request('session.history', { limit: limit ?? 10 }) as Array<{ id: number; outcome?: string; summary?: string; started_at: string }>;
+      const sessions = await call('session.history', { limit: limit ?? 10 }) as Array<{ id: number; outcome?: string; summary?: string; started_at: string }>;
       if (!Array.isArray(sessions) || sessions.length === 0) {
         return { content: [{ type: 'text' as const, text: 'No sessions found.' }] };
       }
@@ -311,7 +323,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
     'Get status of all brains in the ecosystem (brain, trading-brain, marketing-brain).',
     {},
     async () => {
-      const result = await ipc.request('ecosystem.status', {});
+      const result = await call('ecosystem.status', {});
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -325,7 +337,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
       args: z.record(z.string(), z.unknown()).optional().describe('Method arguments as key-value pairs'),
     },
     async ({ peer, method, args }) => {
-      const result = await ipc.request('ecosystem.queryPeer', { peer, method, args: args ?? {} });
+      const result = await call('ecosystem.queryPeer', { peer, method, args: args ?? {} });
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -335,7 +347,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
     'Get insights from Brain as content ideas. Fetches active research insights that could become marketing content.',
     {},
     async () => {
-      const result = await ipc.request('ecosystem.queryPeer', {
+      const result = await call('ecosystem.queryPeer', {
         peer: 'brain',
         method: 'research.insights',
         args: { activeOnly: true, limit: 10 },
@@ -349,7 +361,7 @@ export function registerTools(server: McpServer, ipc: IpcClient): void {
     'Get trading performance stats for performance-related content posts.',
     {},
     async () => {
-      const result = await ipc.request('ecosystem.queryPeer', {
+      const result = await call('ecosystem.queryPeer', {
         peer: 'trading-brain',
         method: 'analytics.summary',
         args: {},

@@ -47,6 +47,9 @@ import { IpcServer } from './ipc/server.js';
 // API
 import { ApiServer } from './api/server.js';
 
+// MCP HTTP
+import { McpHttpServer } from './mcp/http-server.js';
+
 // Dashboard
 import { DashboardServer } from './dashboard/server.js';
 import { renderDashboard } from './dashboard/renderer.js';
@@ -58,6 +61,7 @@ export class MarketingCore {
   private db: Database.Database | null = null;
   private ipcServer: IpcServer | null = null;
   private apiServer: ApiServer | null = null;
+  private mcpHttpServer: McpHttpServer | null = null;
   private dashboardServer: DashboardServer | null = null;
   private learningEngine: LearningEngine | null = null;
   private researchEngine: ResearchEngine | null = null;
@@ -155,7 +159,14 @@ export class MarketingCore {
     this.ipcServer = new IpcServer(router, config.ipc.pipeName);
     this.ipcServer.start();
 
-    // 11. REST API Server
+    // 12. MCP HTTP Server (SSE for Cursor/Windsurf/Cline)
+    if (config.mcpHttp.enabled) {
+      this.mcpHttpServer = new McpHttpServer(config.mcpHttp.port, router);
+      this.mcpHttpServer.start();
+      logger.info(`MCP HTTP server enabled on port ${config.mcpHttp.port}`);
+    }
+
+    // 13. REST API Server
     if (config.api.enabled) {
       this.apiServer = new ApiServer({
         port: config.api.port,
@@ -231,6 +242,7 @@ export class MarketingCore {
     this.researchEngine?.stop();
     this.learningEngine?.stop();
     this.dashboardServer?.stop();
+    this.mcpHttpServer?.stop();
     this.apiServer?.stop();
     this.ipcServer?.stop();
     this.db?.close();
@@ -238,6 +250,7 @@ export class MarketingCore {
     this.db = null;
     this.ipcServer = null;
     this.apiServer = null;
+    this.mcpHttpServer = null;
     this.dashboardServer = null;
     this.learningEngine = null;
     this.researchEngine = null;
