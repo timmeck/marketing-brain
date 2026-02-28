@@ -1,5 +1,7 @@
 # Marketing Brain
 
+> **This repo has moved to [brain-ecosystem](https://github.com/timmeck/brain-ecosystem/tree/main/packages/marketing-brain).** This repository is archived — all development continues in the monorepo. Install via `npm install -g @timmeck/marketing-brain` (unchanged).
+
 [![npm version](https://img.shields.io/npm/v/@timmeck/marketing-brain)](https://www.npmjs.com/package/@timmeck/marketing-brain)
 [![npm downloads](https://img.shields.io/npm/dm/@timmeck/marketing-brain)](https://www.npmjs.com/package/@timmeck/marketing-brain)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
